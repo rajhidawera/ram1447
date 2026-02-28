@@ -210,18 +210,49 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
                   data={mosqueDistribution}
                   cx="50%"
                   cy="50%"
-                  innerRadius={100}
+                  innerRadius={110}
                   outerRadius={160}
-                  paddingAngle={8}
+                  paddingAngle={5}
                   dataKey="value"
-                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                  stroke="none"
+                  className="outline-none"
                 >
                   {mosqueDistribution.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={COLORS[index % COLORS.length]} 
+                      className="transition-all duration-300 hover:opacity-80 cursor-pointer outline-none"
+                      style={{ outline: 'none' }}
+                    />
                   ))}
                 </Pie>
                 <Tooltip 
-                  contentStyle={{ borderRadius: '1.5rem', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload;
+                      const total = stats.totalMeals;
+                      const percentage = ((data.value / total) * 100).toFixed(1);
+                      return (
+                        <div className="bg-white p-6 rounded-[2rem] shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-200">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: payload[0].color }}></div>
+                            <span className="font-black text-[#003366] text-lg">{data.name}</span>
+                          </div>
+                          <div className="space-y-1">
+                            <div className="flex justify-between gap-8">
+                              <span className="text-slate-400 font-bold text-sm">عدد الوجبات:</span>
+                              <span className="font-black text-[#003366]">{data.value.toLocaleString('ar-SA')}</span>
+                            </div>
+                            <div className="flex justify-between gap-8">
+                              <span className="text-slate-400 font-bold text-sm">النسبة من الإجمالي:</span>
+                              <span className="font-black text-[#C5A059]">{percentage}%</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
                 />
               </PieChart>
             </ResponsiveContainer>
