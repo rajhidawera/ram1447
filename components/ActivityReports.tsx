@@ -394,7 +394,10 @@ const ActivityReports: React.FC<ActivityReportsProps> = ({ records, mosques, day
                     position="top" 
                     content={(props: any) => {
                       const { x, y, width, value, index } = props;
-                      const dataValue = mosqueDistributionData[index][activeTab === 'iftar' ? 'iftar' : 'worshippers'];
+                      const entry = mosqueDistributionData[index];
+                      if (!entry) return null;
+                      
+                      const dataValue = entry[activeTab === 'iftar' ? 'iftar' : 'worshippers'];
                       
                       return (
                         <g>
@@ -419,7 +422,7 @@ const ActivityReports: React.FC<ActivityReportsProps> = ({ records, mosques, day
                             fontWeight="bold" 
                             textAnchor="end"
                           >
-                            {dataValue.toLocaleString()} {activeTab === 'iftar' ? 'وجبة' : 'مصلٍ'}
+                            {(dataValue || 0).toLocaleString()} {activeTab === 'iftar' ? 'وجبة' : 'مصلٍ'}
                           </text>
                         </g>
                       );

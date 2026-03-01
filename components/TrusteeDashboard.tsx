@@ -435,7 +435,10 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
                     position="top" 
                     content={(props: any) => {
                       const { x, y, width, value, index } = props;
-                      const dataValue = mosqueDistribution[index].value;
+                      const entry = mosqueDistribution[index];
+                      if (!entry) return null;
+                      
+                      const dataValue = entry.value;
                       
                       return (
                         <g>
@@ -460,7 +463,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
                             fontWeight="bold" 
                             textAnchor="end"
                           >
-                            {dataValue.toLocaleString('ar-SA')} وجبة
+                            {(dataValue || 0).toLocaleString('ar-SA')} وجبة
                           </text>
                         </g>
                       );
