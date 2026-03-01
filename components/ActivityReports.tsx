@@ -359,13 +359,14 @@ const ActivityReports: React.FC<ActivityReportsProps> = ({ records, mosques, day
           </div>
         </div>
 
-        <div className={`${isMobile ? 'h-[800px]' : 'h-[600px]'} w-full mt-4`}>
+        <div className={`${isMobile ? 'h-[800px]' : 'h-[1000px]'} w-full mt-4`}>
           {mosqueDistributionData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart 
                 data={mosqueDistributionData} 
                 layout="vertical" 
-                margin={{ top: 30, right: 10, left: 10, bottom: 20 }}
+                margin={{ top: 50, right: 10, left: 10, bottom: 20 }}
+                barCategoryGap={isMobile ? "20%" : "55%"}
               >
                 <XAxis type="number" hide reversed={true} />
                 <YAxis 
@@ -387,7 +388,7 @@ const ActivityReports: React.FC<ActivityReportsProps> = ({ records, mosques, day
                   dataKey={activeTab === 'iftar' ? 'iftar' : 'worshippers'} 
                   name={activeTab === 'iftar' ? 'عدد الوجبات' : 'عدد المصلين'} 
                   radius={[20, 20, 20, 20]} 
-                  barSize={isMobile ? 12 : 18}
+                  barSize={isMobile ? 12 : 24}
                 >
                   <LabelList 
                     dataKey="name" 
@@ -398,15 +399,17 @@ const ActivityReports: React.FC<ActivityReportsProps> = ({ records, mosques, day
                       if (!entry) return null;
                       
                       const dataValue = entry[activeTab === 'iftar' ? 'iftar' : 'worshippers'];
+                      const nameYOffset = isMobile ? -28 : -35;
+                      const valueYOffset = isMobile ? -10 : -15;
                       
                       return (
                         <g>
                           {/* Mosque Name - Top Line */}
                           <text 
                             x={x + width} 
-                            y={y - 28} 
-                            fill="#003366" 
-                            fontSize={isMobile ? 11 : 13} 
+                            y={y + nameYOffset} 
+                            fill="#1e293b" 
+                            fontSize={isMobile ? 11 : 14} 
                             fontWeight="900" 
                             textAnchor="end"
                             className="font-black"
@@ -416,7 +419,7 @@ const ActivityReports: React.FC<ActivityReportsProps> = ({ records, mosques, day
                           {/* Value - Second Line */}
                           <text 
                             x={x + width} 
-                            y={y - 10} 
+                            y={y + valueYOffset} 
                             fill="#C5A059" 
                             fontSize={isMobile ? 10 : 12} 
                             fontWeight="bold" 

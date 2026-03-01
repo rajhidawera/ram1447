@@ -410,12 +410,13 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
             </div>
             <h3 className="text-xl font-black text-[#003366]">توزيع الأداء حسب المواقع</h3>
           </div>
-          <div className={`${isMobile ? 'h-[800px]' : 'h-[600px]'} w-full mt-4`}>
+          <div className={`${isMobile ? 'h-[800px]' : 'h-[1000px]'} w-full mt-4`}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart 
                 data={mosqueDistribution} 
                 layout="vertical" 
-                margin={{ top: 30, right: 10, left: 10, bottom: 20 }}
+                margin={{ top: 50, right: 10, left: 10, bottom: 20 }}
+                barCategoryGap={isMobile ? "20%" : "55%"}
               >
                 <XAxis type="number" hide reversed={true} />
                 <YAxis dataKey="name" type="category" hide />
@@ -429,7 +430,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
                     fontSize: isMobile ? '10px' : '12px'
                   }}
                 />
-                <Bar dataKey="value" name="الوجبات" radius={[20, 20, 20, 20]} barSize={isMobile ? 12 : 18}>
+                <Bar dataKey="value" name="الوجبات" radius={[20, 20, 20, 20]} barSize={isMobile ? 12 : 24}>
                   <LabelList 
                     dataKey="name" 
                     position="top" 
@@ -439,15 +440,17 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
                       if (!entry) return null;
                       
                       const dataValue = entry.value;
+                      const nameYOffset = isMobile ? -28 : -35;
+                      const valueYOffset = isMobile ? -10 : -15;
                       
                       return (
                         <g>
                           {/* Mosque Name - Top Line */}
                           <text 
                             x={x + width} 
-                            y={y - 28} 
-                            fill="#003366" 
-                            fontSize={isMobile ? 11 : 13} 
+                            y={y + nameYOffset} 
+                            fill="#1e293b" 
+                            fontSize={isMobile ? 11 : 14} 
                             fontWeight="900" 
                             textAnchor="end"
                             className="font-black"
@@ -457,7 +460,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
                           {/* Value - Second Line */}
                           <text 
                             x={x + width} 
-                            y={y - 10} 
+                            y={y + valueYOffset} 
                             fill="#C5A059" 
                             fontSize={isMobile ? 10 : 12} 
                             fontWeight="bold" 
@@ -511,7 +514,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
           <div className="space-y-4">
             <h4 className="text-2xl font-black">ملخص الأداء الاستراتيجي</h4>
             <p className="text-white/70 font-medium max-w-xl">
-              تعكس هذه الأرقام التزام المؤسسة بتقديم أفضل الخدمات لضيوف الرحمن والمستفيدين خلال شهر رمضان المبارك، مع التركيز على الجودة والأثر المستدام.
+              تعكس هذه الأرقام التزام المؤسسة بتقديم أفضل الخدمات للصائمين والمستفيدين خلال شهر رمضان المبارك، مع التركيز على الجودة والأثر المستدام.
             </p>
           </div>
           <div className="flex gap-8">
