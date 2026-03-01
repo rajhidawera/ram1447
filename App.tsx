@@ -131,21 +131,21 @@ const App: React.FC = () => {
       )}
 
             <header className="bg-[#003366] text-white shadow-xl sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 h-16 md:h-20 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 shrink-0">
-            <div className="bg-white p-1 rounded shadow-sm">
-              <img src="https://next.rajhifoundation.org/files/52c533df-1.png" alt="شعار الراجحي" className="h-6 md:h-8" />
+        <div className="max-w-7xl mx-auto px-3 md:px-4 h-14 md:h-20 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
+            <div className="bg-white p-0.5 md:p-1 rounded shadow-sm">
+              <img src="https://next.rajhifoundation.org/files/52c533df-1.png" alt="شعار الراجحي" className="h-5 md:h-8" />
             </div>
-            <div className="hidden sm:block">
-              <h1 className="font-black text-sm md:text-base leading-none">رمضان 1447هـ</h1>
-              <p className="text-[7px] text-[#C5A059] uppercase tracking-tighter font-black mt-0.5">مؤسسة الراجحي الخيرية</p>
+            <div className="hidden xs:block">
+              <h1 className="font-black text-[10px] md:text-base leading-none">رمضان 1447هـ</h1>
+              <p className="text-[6px] md:text-[7px] text-[#C5A059] uppercase tracking-tighter font-black mt-0.5">مؤسسة الراجحي الخيرية</p>
             </div>
           </div>
 
-          <nav className="flex items-center bg-white/10 rounded-xl p-0.5 gap-0.5 border border-white/5 overflow-x-auto no-scrollbar">
-            <button onClick={() => setView('dashboard')} className={`px-3 py-1.5 rounded-lg text-[10px] md:text-xs font-bold transition-all whitespace-nowrap ${view === 'dashboard' ? 'bg-[#0054A6] text-white shadow-md' : 'text-white/60 hover:text-white'}`}>الرئيسية</button>
-            <button onClick={() => setView('reports')} className={`px-3 py-1.5 rounded-lg text-[10px] md:text-xs font-bold transition-all whitespace-nowrap ${view === 'reports' ? 'bg-[#0054A6] text-white shadow-md' : 'text-white/60 hover:text-white'}`}>التقارير</button>
-            <button onClick={() => setView('trustee_dashboard')} className={`px-3 py-1.5 rounded-lg text-[10px] md:text-xs font-bold transition-all whitespace-nowrap ${view === 'trustee_dashboard' ? 'bg-[#C5A059] text-white shadow-md' : 'text-white/60 hover:text-white'}`}>مجلس الأمناء</button>
+          <nav className="flex items-center bg-white/10 rounded-lg md:rounded-xl p-0.5 gap-0.5 border border-white/5 overflow-x-auto no-scrollbar">
+            <button onClick={() => setView('dashboard')} className={`px-2.5 md:px-3 py-1 md:py-1.5 rounded-md md:rounded-lg text-[9px] md:text-xs font-bold transition-all whitespace-nowrap ${view === 'dashboard' ? 'bg-[#0054A6] text-white shadow-md' : 'text-white/60 hover:text-white'}`}>الرئيسية</button>
+            <button onClick={() => setView('reports')} className={`px-2.5 md:px-3 py-1 md:py-1.5 rounded-md md:rounded-lg text-[9px] md:text-xs font-bold transition-all whitespace-nowrap ${view === 'reports' ? 'bg-[#0054A6] text-white shadow-md' : 'text-white/60 hover:text-white'}`}>التقارير</button>
+            <button onClick={() => setView('trustee_dashboard')} className={`px-2.5 md:px-3 py-1 md:py-1.5 rounded-md md:rounded-lg text-[9px] md:text-xs font-bold transition-all whitespace-nowrap ${view === 'trustee_dashboard' ? 'bg-[#C5A059] text-white shadow-md' : 'text-white/60 hover:text-white'}`}>التقرير العام</button>
           </nav>
 
           <div className="flex items-center gap-2 shrink-0">

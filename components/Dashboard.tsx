@@ -60,7 +60,7 @@ const Dashboard: React.FC<DashboardProps> = ({ records, mosques, days, photos, o
           <div className="flex items-center gap-6">
             <div className="w-20 h-20 bg-white/10 rounded-[2rem] flex items-center justify-center text-4xl group-hover:rotate-12 transition-transform">🏛️</div>
             <div className="text-right">
-              <h3 className="text-2xl font-black">عرض مجلس الأمناء</h3>
+              <h3 className="text-2xl font-black">التقرير العام</h3>
               <p className="text-white/60 font-bold mt-1">تقارير استراتيجية، مؤشرات الأداء، وحجم الأثر الميداني</p>
             </div>
           </div>

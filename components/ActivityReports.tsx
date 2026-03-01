@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { MosqueRecord, MosqueInfo, DayInfo } from '../types.ts';
 import { 
   LineChart, 
@@ -14,7 +14,8 @@ import {
   Area,
   BarChart,
   Bar,
-  Cell
+  Cell,
+  LabelList
 } from 'recharts';
 import { TrendingUp, TrendingDown, Minus, BarChart3, MapPin, Calendar, LayoutGrid, Award } from 'lucide-react';
 
@@ -27,6 +28,15 @@ interface ActivityReportsProps {
 
 const ActivityReports: React.FC<ActivityReportsProps> = ({ records, mosques, days, onBack }) => {
   const [selectedMosque, setSelectedMosque] = useState<string>('');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const [selectedDay, setSelectedDay] = useState<string>(() => {
     const eighthDay = days.find(d => d.label.includes('8') || d.code_day.includes('08') || d.label.includes('الثامن'));
     return eighthDay ? eighthDay.code_day : (days[0]?.code_day || '');
@@ -104,47 +114,47 @@ const ActivityReports: React.FC<ActivityReportsProps> = ({ records, mosques, day
 
   return (
     <div className="space-y-8 animate-in fade-in text-right" dir="rtl">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div className="flex items-center gap-4">
-          <button onClick={onBack} className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-sm border border-slate-200 hover:bg-slate-50 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+        <div className="flex items-center gap-3 md:gap-4 w-full lg:w-auto">
+          <button onClick={onBack} className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-white rounded-xl md:rounded-2xl shadow-sm border border-slate-200 hover:bg-slate-50 transition-colors shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 md:h-6 md:w-6 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
             </svg>
           </button>
-          <div>
-            <h2 className="text-3xl font-black text-[#003366]">تقارير الأداء والنمو</h2>
-            <p className="text-slate-400 text-sm font-bold">تحليل بياني لتطور وجبات الإفطار وأعداد المصلين</p>
+          <div className="flex-1">
+            <h2 className="text-xl md:text-3xl font-black text-[#003366]">تقارير الأداء والنمو</h2>
+            <p className="text-slate-400 text-[10px] md:text-sm font-bold">تحليل بياني لتطور وجبات الإفطار وأعداد المصلين</p>
           </div>
           <button 
             onClick={() => (window as any).setView('trustee_dashboard')}
-            className="hidden md:flex px-4 py-2 bg-[#C5A059]/10 text-[#C5A059] rounded-xl font-black text-[10px] items-center gap-2 hover:bg-[#C5A059]/20 transition-all border border-[#C5A059]/20"
+            className="flex px-3 py-2 bg-[#C5A059]/10 text-[#C5A059] rounded-lg md:rounded-xl font-black text-[9px] md:text-[10px] items-center gap-1 md:gap-2 hover:bg-[#C5A059]/20 transition-all border border-[#C5A059]/20 whitespace-nowrap"
           >
             <Award className="w-3 h-3" />
-            <span>مجلس الأمناء</span>
+            <span>التقرير العام</span>
           </button>
         </div>
 
-        <div className="flex bg-white p-1.5 rounded-2xl shadow-sm border border-slate-100 gap-1">
+        <div className="flex bg-white p-1 rounded-xl md:rounded-2xl shadow-sm border border-slate-100 gap-1 w-full lg:w-auto">
           <button 
             onClick={() => setActiveTab('iftar')}
-            className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all ${activeTab === 'iftar' ? 'bg-[#0054A6] text-white shadow-md' : 'text-slate-400 hover:bg-slate-50'}`}
+            className={`flex-1 lg:flex-none px-4 md:px-6 py-2 md:py-2.5 rounded-lg md:rounded-xl text-[10px] md:text-xs font-black transition-all ${activeTab === 'iftar' ? 'bg-[#0054A6] text-white shadow-md' : 'text-slate-400 hover:bg-slate-50'}`}
           >
             🍱 وجبات الإفطار
           </button>
           <button 
             onClick={() => setActiveTab('worshippers')}
-            className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all ${activeTab === 'worshippers' ? 'bg-[#0054A6] text-white shadow-md' : 'text-slate-400 hover:bg-slate-50'}`}
+            className={`flex-1 lg:flex-none px-4 md:px-6 py-2 md:py-2.5 rounded-lg md:rounded-xl text-[10px] md:text-xs font-black transition-all ${activeTab === 'worshippers' ? 'bg-[#0054A6] text-white shadow-md' : 'text-slate-400 hover:bg-slate-50'}`}
           >
             👥 أعداد المصلين
           </button>
         </div>
 
-        <div className="flex items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border border-slate-100 w-full md:w-auto">
-          <MapPin className="w-5 h-5 text-[#C5A059] mr-2" />
+        <div className="flex items-center gap-3 bg-white p-2 rounded-xl md:rounded-2xl shadow-sm border border-slate-100 w-full lg:w-auto">
+          <MapPin className="w-4 h-4 md:w-5 md:h-5 text-[#C5A059] mr-1 md:mr-2" />
           <select 
             value={selectedMosque} 
             onChange={(e) => setSelectedMosque(e.target.value)}
-            className="bg-transparent border-none outline-none font-bold text-[#003366] text-sm flex-grow md:w-64"
+            className="bg-transparent border-none outline-none font-bold text-[#003366] text-xs md:text-sm flex-grow lg:w-64"
           >
             <option value="">جميع المساجد</option>
             {mosques.map(m => (
@@ -154,15 +164,15 @@ const ActivityReports: React.FC<ActivityReportsProps> = ({ records, mosques, day
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         {/* Stats Card */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100 relative overflow-hidden">
+          <div className="bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-xl border border-slate-100 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-2 h-full bg-[#0054A6]"></div>
-            <h3 className="text-slate-400 text-xs font-black uppercase tracking-widest mb-2">
+            <h3 className="text-slate-400 text-[10px] md:text-xs font-black uppercase tracking-widest mb-2">
               {activeTab === 'iftar' ? 'إجمالي وجبات الإفطار' : 'إجمالي عدد المصلين'}
             </h3>
-            <div className="text-4xl font-black text-[#003366] mb-4">
+            <div className="text-3xl md:text-4xl font-black text-[#003366] mb-4">
               {totalValue.toLocaleString('ar-SA')}
             </div>
             
@@ -202,13 +212,13 @@ const ActivityReports: React.FC<ActivityReportsProps> = ({ records, mosques, day
 
         {/* Chart Card */}
         <div className="lg:col-span-2 space-y-8">
-          <div className="bg-white p-8 rounded-[3rem] shadow-xl border border-slate-100 flex flex-col">
-            <div className="flex items-center justify-between mb-8">
+          <div className="bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[3rem] shadow-xl border border-slate-100 flex flex-col">
+            <div className="flex items-center justify-between mb-6 md:mb-8">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#C5A059]/10 rounded-xl flex items-center justify-center text-[#C5A059]">
-                  <BarChart3 className="w-6 h-6" />
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-[#C5A059]/10 rounded-lg md:rounded-xl flex items-center justify-center text-[#C5A059]">
+                  <BarChart3 className="w-5 h-5 md:w-6 md:h-6" />
                 </div>
-                <h3 className="text-xl font-black text-[#003366]">منحنى النمو اليومي</h3>
+                <h3 className="text-lg md:text-xl font-black text-[#003366]">منحنى النمو اليومي</h3>
               </div>
               <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-slate-400">
                  <div className="flex items-center gap-1">
@@ -323,26 +333,24 @@ const ActivityReports: React.FC<ActivityReportsProps> = ({ records, mosques, day
       </div>
 
       {/* Distribution by Mosque for Selected Day */}
-      <div className="bg-white p-8 rounded-[3rem] shadow-xl border border-slate-100 flex flex-col">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
+      <div className="bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[3rem] shadow-xl border border-slate-100 flex flex-col">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-6 md:mb-8 gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#0054A6]/10 rounded-xl flex items-center justify-center text-[#0054A6]">
-              <LayoutGrid className="w-6 h-6" />
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-[#0054A6]/10 rounded-lg md:rounded-xl flex items-center justify-center text-[#0054A6]">
+              <LayoutGrid className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div>
-              <h3 className="text-xl font-black text-[#003366]">
-                {activeTab === 'iftar' ? 'توزيع الوجبات حسب المسجد' : 'توزيع المصلين حسب المسجد'}
-              </h3>
-              <p className="text-slate-400 text-[10px] font-bold">مقارنة أداء المساجد في يوم محدد</p>
+              <h3 className="text-lg md:text-xl font-black text-[#003366]">توزيع الأداء حسب المواقع</h3>
+              <p className="text-slate-400 text-[9px] md:text-[10px] font-bold">مقارنة أداء المساجد في يوم محدد</p>
             </div>
           </div>
           
-          <div className="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border border-slate-100 w-full md:w-auto">
+          <div className="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border border-slate-100 w-full lg:w-auto">
             <Calendar className="w-4 h-4 text-[#C5A059] mr-1" />
             <select 
               value={selectedDay} 
               onChange={(e) => setSelectedDay(e.target.value)}
-              className="bg-transparent border-none outline-none font-bold text-[#003366] text-xs"
+              className="bg-transparent border-none outline-none font-bold text-[#003366] text-[10px] md:text-xs flex-grow lg:w-auto"
             >
               {days.map(d => (
                 <option key={d.code_day} value={d.code_day}>{d.label}</option>
@@ -351,39 +359,78 @@ const ActivityReports: React.FC<ActivityReportsProps> = ({ records, mosques, day
           </div>
         </div>
 
-        <div className="h-[400px] w-full">
+        <div className={`${isMobile ? 'h-[800px]' : 'h-[600px]'} w-full mt-4`}>
           {mosqueDistributionData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={mosqueDistributionData} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#F1F5F9" />
-                <XAxis type="number" hide />
+              <BarChart 
+                data={mosqueDistributionData} 
+                layout="vertical" 
+                margin={{ top: 30, right: 10, left: 10, bottom: 20 }}
+              >
+                <XAxis type="number" hide reversed={true} />
                 <YAxis 
                   dataKey="name" 
                   type="category" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fill: '#003366', fontSize: 11, fontWeight: 900 }}
-                  width={150}
-                  textAnchor="end"
+                  hide
                 />
                 <Tooltip 
-                  cursor={{ fill: '#F8FAFC' }}
+                  cursor={{ fill: '#F8FAFC', radius: 10 }}
                   contentStyle={{ 
                     borderRadius: '1rem', 
                     border: 'none', 
                     boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                    textAlign: 'right'
+                    textAlign: 'right',
+                    fontSize: isMobile ? '10px' : '12px'
                   }}
                 />
                 <Bar 
                   dataKey={activeTab === 'iftar' ? 'iftar' : 'worshippers'} 
                   name={activeTab === 'iftar' ? 'عدد الوجبات' : 'عدد المصلين'} 
-                  radius={[0, 10, 10, 0]} 
-                  barSize={25}
+                  radius={[20, 20, 20, 20]} 
+                  barSize={isMobile ? 12 : 18}
                 >
-                  {mosqueDistributionData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={index === 0 ? '#C5A059' : (activeTab === 'iftar' ? '#0054A6' : '#C5A059')} />
-                  ))}
+                  <LabelList 
+                    dataKey="name" 
+                    position="top" 
+                    content={(props: any) => {
+                      const { x, y, width, value, index } = props;
+                      const dataValue = mosqueDistributionData[index][activeTab === 'iftar' ? 'iftar' : 'worshippers'];
+                      
+                      return (
+                        <g>
+                          {/* Mosque Name - Top Line */}
+                          <text 
+                            x={x + width} 
+                            y={y - 28} 
+                            fill="#003366" 
+                            fontSize={isMobile ? 11 : 13} 
+                            fontWeight="900" 
+                            textAnchor="end"
+                            className="font-black"
+                          >
+                            {value}
+                          </text>
+                          {/* Value - Second Line */}
+                          <text 
+                            x={x + width} 
+                            y={y - 10} 
+                            fill="#C5A059" 
+                            fontSize={isMobile ? 10 : 12} 
+                            fontWeight="bold" 
+                            textAnchor="end"
+                          >
+                            {dataValue.toLocaleString()} {activeTab === 'iftar' ? 'وجبة' : 'مصلٍ'}
+                          </text>
+                        </g>
+                      );
+                    }}
+                  />
+                  {mosqueDistributionData.map((entry, index) => {
+                    const colors = ['#003366', '#0054A6', '#C5A059', '#1E293B', '#475569'];
+                    return (
+                      <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                    );
+                  })}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>

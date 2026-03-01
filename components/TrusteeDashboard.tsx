@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { MosqueRecord, MosqueInfo } from '../types.ts';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-  PieChart, Pie, Cell, LineChart, Line, AreaChart, Area, Legend
+  PieChart, Pie, Cell, LineChart, Line, AreaChart, Area, Legend, LabelList
 } from 'recharts';
 import { 
   Users, Utensils, BookOpen, Heart, Presentation, 
@@ -18,10 +18,10 @@ interface TrusteeDashboardProps {
 const COLORS = ['#003366', '#0054A6', '#C5A059', '#ad8949', '#5a7b9c', '#1e293b'];
 
 const ImpactCard = ({ title, value, icon, color, subtitle }: { title: string, value: number, icon: React.ReactNode, color: string, subtitle: string }) => (
-  <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+  <div className="bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
     <div className="absolute top-0 right-0 w-1.5 h-full" style={{ backgroundColor: color }}></div>
     <div className="flex items-center justify-between mb-4">
-      <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg" style={{ backgroundColor: color }}>
+      <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl flex items-center justify-center text-white shadow-lg" style={{ backgroundColor: color }}>
         {icon}
       </div>
       <div className="flex items-center gap-1 text-[#C5A059]">
@@ -29,10 +29,10 @@ const ImpactCard = ({ title, value, icon, color, subtitle }: { title: string, va
         <span className="text-[10px] font-black uppercase tracking-widest">مباشر</span>
       </div>
     </div>
-    <h4 className="text-3xl font-black tabular-nums text-slate-800">{value.toLocaleString('ar-SA')}</h4>
+    <h4 className="text-2xl md:text-3xl font-black tabular-nums text-slate-800">{value.toLocaleString('ar-SA')}</h4>
     <div className="mt-2">
-      <span className="text-sm font-black text-slate-400">{title}</span>
-      <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest mt-0.5">{subtitle}</p>
+      <span className="text-xs md:text-sm font-black text-slate-400">{title}</span>
+      <p className="text-[9px] md:text-[10px] font-bold text-slate-300 uppercase tracking-widest mt-0.5">{subtitle}</p>
     </div>
   </div>
 );
@@ -56,21 +56,21 @@ const ProgressItem = ({ label, value, target, color }: { label: string, value: n
 };
 
 const MetricBox = ({ title, value, unit, beneficiaries, icon, color, beneficiaryLabel = "مستفيد" }: any) => (
-  <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100 flex flex-col gap-6">
+  <div className="bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[3rem] shadow-sm border border-slate-100 flex flex-col gap-4 md:gap-6">
     <div className="flex items-center gap-3">
-      <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${color}15`, color }}>
+      <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center" style={{ backgroundColor: `${color}15`, color }}>
         {icon}
       </div>
-      <h4 className="text-lg font-black text-[#003366]">{title}</h4>
+      <h4 className="text-base md:text-lg font-black text-[#003366]">{title}</h4>
     </div>
     <div className="flex items-end justify-between">
       <div>
-        <div className="text-3xl font-black text-slate-800">{value.toLocaleString('ar-SA')}</div>
-        <div className="text-xs font-bold text-slate-400">{unit}</div>
+        <div className="text-2xl md:text-3xl font-black text-slate-800">{value.toLocaleString('ar-SA')}</div>
+        <div className="text-[10px] md:text-xs font-bold text-slate-400">{unit}</div>
       </div>
       <div className="text-left">
-        <div className="text-xl font-black" style={{ color }}>{beneficiaries.toLocaleString('ar-SA')}</div>
-        <div className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">{beneficiaryLabel}</div>
+        <div className="text-lg md:text-xl font-black" style={{ color }}>{beneficiaries.toLocaleString('ar-SA')}</div>
+        <div className="text-[9px] md:text-[10px] font-bold text-slate-300 uppercase tracking-widest">{beneficiaryLabel}</div>
       </div>
     </div>
   </div>
@@ -82,6 +82,15 @@ const LayoutGrid = ({ className }: { className?: string }) => (
 
 const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, onBack }) => {
   
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const stats = useMemo(() => {
     return records.reduce((acc, r) => {
       acc.totalWorshippers += (Number(r.عدد_المصلين_رجال) || 0) + (Number(r.عدد_المصلين_نساء) || 0);
@@ -116,8 +125,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
     });
     return Object.entries(data)
       .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 10);
+      .sort((a, b) => b.value - a.value);
   }, [records]);
 
   const dailyGrowth = useMemo(() => {
@@ -138,14 +146,14 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
   return (
     <div className="space-y-8 animate-in fade-in text-right" dir="rtl">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-sm border border-slate-100">
         <div>
-          <h2 className="text-3xl font-black text-[#003366]">تقرير مجلس الأمناء 🏛️</h2>
-          <p className="text-slate-500 font-bold mt-1">عرض استراتيجي لحجم الأثر والعمل الميداني - رمضان 1447هـ</p>
+          <h2 className="text-2xl md:text-3xl font-black text-[#003366]">التقرير العام 🏛️</h2>
+          <p className="text-slate-500 font-bold mt-1 text-xs md:text-base">عرض استراتيجي لحجم الأثر والعمل الميداني - رمضان 1447هـ</p>
         </div>
         <button 
           onClick={onBack}
-          className="px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-black hover:bg-slate-200 transition-all flex items-center gap-2"
+          className="w-full md:w-auto px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-black hover:bg-slate-200 transition-all flex items-center justify-center gap-2 text-sm md:text-base"
         >
           <span>العودة للرئيسية</span>
         </button>
@@ -184,34 +192,34 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
       </div>
 
       {/* Strategic Meal Distribution - Highlighted Section */}
-      <div className="bg-white p-10 rounded-[3.5rem] shadow-2xl border border-slate-100 relative overflow-hidden">
+      <div className="bg-white p-6 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] shadow-2xl border border-slate-100 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#003366] via-[#C5A059] to-[#003366]"></div>
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 md:mb-10">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-[#C5A059]/10 rounded-2xl flex items-center justify-center text-[#C5A059]">
-              <Utensils className="w-8 h-8" />
+            <div className="w-10 h-10 md:w-14 md:h-14 bg-[#C5A059]/10 rounded-xl md:rounded-2xl flex items-center justify-center text-[#C5A059]">
+              <Utensils className="w-6 h-6 md:w-8 md:h-8" />
             </div>
             <div>
-              <h3 className="text-2xl font-black text-[#003366]">التوزيع الاستراتيجي لوجبات الإفطار</h3>
-              <p className="text-slate-400 font-bold">تحليل حصص التوزيع لأعلى 10 مواقع ميدانية</p>
+              <h3 className="text-xl md:text-2xl font-black text-[#003366]">التوزيع الاستراتيجي لوجبات الإفطار</h3>
+              <p className="text-slate-400 font-bold text-xs md:text-base">تحليل حصص التوزيع لجميع المواقع الميدانية</p>
             </div>
           </div>
-          <div className="bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100">
-            <span className="text-sm font-bold text-slate-500 ml-2">إجمالي الوجبات الموزعة:</span>
-            <span className="text-2xl font-black text-[#C5A059]">{stats.totalMeals.toLocaleString('ar-SA')}</span>
+          <div className="bg-slate-50 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl border border-slate-100 w-full md:w-auto flex justify-between md:block">
+            <span className="text-xs md:text-sm font-bold text-slate-500 ml-2">إجمالي الوجبات الموزعة:</span>
+            <span className="text-lg md:text-2xl font-black text-[#C5A059]">{stats.totalMeals.toLocaleString('ar-SA')}</span>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 items-center">
-          <div className="lg:col-span-3 h-[450px]">
+          <div className={`lg:col-span-3 ${isMobile ? 'h-[350px]' : 'h-[450px]'}`}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={mosqueDistribution}
                   cx="50%"
                   cy="50%"
-                  innerRadius={110}
-                  outerRadius={160}
+                  innerRadius={isMobile ? 70 : 110}
+                  outerRadius={isMobile ? 110 : 160}
                   paddingAngle={5}
                   dataKey="value"
                   stroke="none"
@@ -233,19 +241,19 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
                       const total = stats.totalMeals;
                       const percentage = ((data.value / total) * 100).toFixed(1);
                       return (
-                        <div className="bg-white p-6 rounded-[2rem] shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-200">
-                          <div className="flex items-center gap-3 mb-3">
+                        <div className={`${isMobile ? 'p-4 rounded-[1.5rem]' : 'p-6 rounded-[2rem]'} bg-white shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-200`}>
+                          <div className={`flex items-center gap-3 ${isMobile ? 'mb-2' : 'mb-3'}`}>
                             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: payload[0].color }}></div>
-                            <span className="font-black text-[#003366] text-lg">{data.name}</span>
+                            <span className={`font-black text-[#003366] ${isMobile ? 'text-sm' : 'text-lg'}`}>{data.name}</span>
                           </div>
                           <div className="space-y-1">
-                            <div className="flex justify-between gap-8">
-                              <span className="text-slate-400 font-bold text-sm">عدد الوجبات:</span>
-                              <span className="font-black text-[#003366]">{data.value.toLocaleString('ar-SA')}</span>
+                            <div className="flex justify-between gap-4">
+                              <span className="text-slate-400 font-bold text-[10px] md:text-sm">عدد الوجبات:</span>
+                              <span className="font-black text-[#003366] text-xs md:text-base">{data.value.toLocaleString('ar-SA')}</span>
                             </div>
-                            <div className="flex justify-between gap-8">
-                              <span className="text-slate-400 font-bold text-sm">النسبة من الإجمالي:</span>
-                              <span className="font-black text-[#C5A059]">{percentage}%</span>
+                            <div className="flex justify-between gap-4">
+                              <span className="text-slate-400 font-bold text-[10px] md:text-sm">النسبة من الإجمالي:</span>
+                              <span className="font-black text-[#C5A059] text-xs md:text-base">{percentage}%</span>
                             </div>
                           </div>
                         </div>
@@ -258,7 +266,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
             </ResponsiveContainer>
           </div>
           <div className="lg:col-span-2 space-y-4">
-            <h4 className="text-lg font-black text-[#003366] mb-6 border-r-4 border-[#C5A059] pr-4">قائمة الصدارة (Top 10)</h4>
+            <h4 className="text-lg font-black text-[#003366] mb-6 border-r-4 border-[#C5A059] pr-4">قائمة المواقع (جميع المواقع)</h4>
             {mosqueDistribution.map((item, index) => (
               <div key={index} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors border border-transparent hover:border-slate-200">
                 <div className="flex items-center gap-3">
@@ -402,14 +410,62 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
             </div>
             <h3 className="text-xl font-black text-[#003366]">توزيع الأداء حسب المواقع</h3>
           </div>
-          <div className="h-[400px]">
+          <div className={`${isMobile ? 'h-[800px]' : 'h-[600px]'} w-full mt-4`}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={mosqueDistribution} layout="vertical" margin={{ left: 50 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
-                <XAxis type="number" hide />
-                <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fill: '#003366', fontWeight: 900, fontSize: 12}} width={150} />
-                <Tooltip cursor={{fill: 'transparent'}} />
-                <Bar dataKey="value" name="الوجبات" radius={[0, 10, 10, 0]}>
+              <BarChart 
+                data={mosqueDistribution} 
+                layout="vertical" 
+                margin={{ top: 30, right: 10, left: 10, bottom: 20 }}
+              >
+                <XAxis type="number" hide reversed={true} />
+                <YAxis dataKey="name" type="category" hide />
+                <Tooltip 
+                  cursor={{ fill: '#F8FAFC', radius: 10 }}
+                  contentStyle={{ 
+                    borderRadius: '1rem', 
+                    border: 'none', 
+                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+                    textAlign: 'right',
+                    fontSize: isMobile ? '10px' : '12px'
+                  }}
+                />
+                <Bar dataKey="value" name="الوجبات" radius={[20, 20, 20, 20]} barSize={isMobile ? 12 : 18}>
+                  <LabelList 
+                    dataKey="name" 
+                    position="top" 
+                    content={(props: any) => {
+                      const { x, y, width, value, index } = props;
+                      const dataValue = mosqueDistribution[index].value;
+                      
+                      return (
+                        <g>
+                          {/* Mosque Name - Top Line */}
+                          <text 
+                            x={x + width} 
+                            y={y - 28} 
+                            fill="#003366" 
+                            fontSize={isMobile ? 11 : 13} 
+                            fontWeight="900" 
+                            textAnchor="end"
+                            className="font-black"
+                          >
+                            {value}
+                          </text>
+                          {/* Value - Second Line */}
+                          <text 
+                            x={x + width} 
+                            y={y - 10} 
+                            fill="#C5A059" 
+                            fontSize={isMobile ? 10 : 12} 
+                            fontWeight="bold" 
+                            textAnchor="end"
+                          >
+                            {dataValue.toLocaleString('ar-SA')} وجبة
+                          </text>
+                        </g>
+                      );
+                    }}
+                  />
                   {mosqueDistribution.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
