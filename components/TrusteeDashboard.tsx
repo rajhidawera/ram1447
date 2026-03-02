@@ -6,7 +6,8 @@ import {
 } from 'recharts';
 import { 
   Users, Utensils, BookOpen, Heart, Presentation, 
-  UsersRound, Award, Droplets, ArrowUpRight, TrendingUp, MapPin
+  UsersRound, Award, Droplets, ArrowUpRight, TrendingUp, MapPin,
+  Coffee, Sparkles
 } from 'lucide-react';
 
 interface TrusteeDashboardProps {
@@ -103,6 +104,10 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
       acc.totalLectures += (Number(r.عدد_الكلمات_الرجالية) || 0) + (Number(r.عدد_الكلمات_النسائية) || 0);
       acc.totalLectureBeneficiaries += (Number(r.عدد_مستفيدي_الكلمات) || 0);
       acc.totalCommunityBeneficiaries += (Number(r.عدد_المستفيدين) || 0);
+      acc.totalHospitalityBeneficiaries += (Number(r.عدد_مستفيدي_الضيافة) || 0);
+      if (r.البرنامج_المجتمعي && String(r.البرنامج_المجتمعي).trim() !== '') {
+        acc.totalCommunityPrograms += 1;
+      }
       return acc;
     }, {
       totalWorshippers: 0,
@@ -114,7 +119,9 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
       totalSupervisors: 0,
       totalLectures: 0,
       totalLectureBeneficiaries: 0,
-      totalCommunityBeneficiaries: 0
+      totalCommunityBeneficiaries: 0,
+      totalHospitalityBeneficiaries: 0,
+      totalCommunityPrograms: 0
     });
   }, [records]);
 
@@ -163,7 +170,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <ImpactCard 
           title="إجمالي المستفيدين" 
-          value={stats.totalWorshippers + stats.totalCommunityBeneficiaries + stats.totalLectureBeneficiaries} 
+          value={stats.totalWorshippers + stats.totalCommunityBeneficiaries + stats.totalLectureBeneficiaries + stats.totalHospitalityBeneficiaries} 
           icon={<Users className="w-6 h-6" />} 
           color="#003366"
           subtitle="أثر مجتمعي مباشر"
@@ -373,7 +380,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
       </div>
 
       {/* Secondary Metrics Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
         <MetricBox 
           title="البرامج الدعوية" 
           value={stats.totalLectures} 
@@ -381,6 +388,15 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
           beneficiaries={stats.totalLectureBeneficiaries}
           icon={<Presentation className="w-5 h-5" />}
           color="#0054A6"
+        />
+        <MetricBox 
+          title="خدمات الضيافة" 
+          value={stats.totalHospitalityBeneficiaries} 
+          unit="مستفيد"
+          beneficiaries={stats.totalHospitalityBeneficiaries}
+          beneficiaryLabel="مستفيد مباشر"
+          icon={<Coffee className="w-5 h-5" />}
+          color="#ad8949"
         />
         <MetricBox 
           title="الخدمات اللوجستية" 
@@ -393,12 +409,78 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
         />
         <MetricBox 
           title="البرامج المجتمعية" 
-          value={records.filter(r => r.البرنامج_المجتمعي).length} 
-          unit="برنامج"
+          value={stats.totalCommunityPrograms} 
+          unit="برنامج منفذ"
           beneficiaries={stats.totalCommunityBeneficiaries}
           icon={<Heart className="w-5 h-5" />}
           color="#003366"
         />
+      </div>
+
+      {/* Community Programs Special Section */}
+      <div className="bg-white p-8 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] shadow-xl border border-slate-100">
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-12 h-12 bg-[#003366]/10 rounded-2xl flex items-center justify-center text-[#003366]">
+            <Sparkles className="w-6 h-6" />
+          </div>
+          <div>
+            <h3 className="text-2xl font-black text-[#003366]">البرامج المجتمعية النوعية</h3>
+            <p className="text-slate-400 font-bold text-sm">تفاصيل المبادرات والأثر المجتمعي المستدام</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+            <div className="text-sm font-bold text-slate-400 mb-1">إجمالي البرامج</div>
+            <div className="text-3xl font-black text-[#003366]">{stats.totalCommunityPrograms.toLocaleString('ar-SA')}</div>
+            <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-1">مبادرة ميدانية</div>
+          </div>
+          <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+            <div className="text-sm font-bold text-slate-400 mb-1">إجمالي المستفيدين</div>
+            <div className="text-3xl font-black text-[#C5A059]">{stats.totalCommunityBeneficiaries.toLocaleString('ar-SA')}</div>
+            <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-1">مستفيد مباشر</div>
+          </div>
+          <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+            <div className="text-sm font-bold text-slate-400 mb-1">متوسط المستفيدين/برنامج</div>
+            <div className="text-3xl font-black text-[#0054A6]">
+              {stats.totalCommunityPrograms > 0 ? Math.round(stats.totalCommunityBeneficiaries / stats.totalCommunityPrograms).toLocaleString('ar-SA') : 0}
+            </div>
+            <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-1">شخص لكل مبادرة</div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h4 className="text-lg font-black text-slate-700 mb-4 px-2">أبرز البرامج المنفذة:</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {records
+              .filter(r => r.البرنامج_المجتمعي && String(r.البرنامج_المجتمعي).trim() !== '')
+              .slice(0, 6)
+              .map((r, idx) => (
+                <div key={idx} className="flex items-start gap-4 p-4 rounded-2xl bg-white border border-slate-50 hover:border-slate-200 transition-colors">
+                  <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 flex-shrink-0">
+                    <Award className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="font-black text-[#003366] text-sm">{r.البرنامج_المجتمعي}</div>
+                    <div className="text-xs text-slate-400 font-bold mt-1">{r.المسجد}</div>
+                    {r.وصف_البرنامج && (
+                      <p className="text-[11px] text-slate-500 mt-2 line-clamp-2 leading-relaxed">{r.وصف_البرنامج}</p>
+                    )}
+                    <div className="mt-2 flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-black">
+                        {Number(r.عدد_المستفيدين).toLocaleString('ar-SA')} مستفيد
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+          </div>
+          {records.filter(r => r.البرنامج_المجتمعي && String(r.البرنامج_المجتمعي).trim() !== '').length > 6 && (
+            <div className="text-center mt-6">
+              <span className="text-xs font-bold text-slate-400 italic">... وغيرها من المبادرات النوعية في مختلف المواقع</span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Mosque Performance Comparison */}
