@@ -30,7 +30,7 @@ const ImpactCard = ({ title, value, icon, color, subtitle }: { title: string, va
         <span className="text-[10px] font-black uppercase tracking-widest">مباشر</span>
       </div>
     </div>
-    <h4 className="text-2xl md:text-3xl font-black tabular-nums text-slate-800">{value.toLocaleString('ar-SA')}</h4>
+    <h4 className="text-2xl md:text-3xl font-black tabular-nums text-slate-800">{value.toLocaleString('en-US')}</h4>
     <div className="mt-2">
       <span className="text-xs md:text-sm font-black text-slate-400">{title}</span>
       <p className="text-[9px] md:text-[10px] font-bold text-slate-300 uppercase tracking-widest mt-0.5">{subtitle}</p>
@@ -44,7 +44,7 @@ const ProgressItem = ({ label, value, target, color }: { label: string, value: n
     <div className="space-y-2">
       <div className="flex justify-between items-center text-sm">
         <span className="font-black text-[#003366]">{label}</span>
-        <span className="font-bold text-slate-400">{value.toLocaleString('ar-SA')} / {target.toLocaleString('ar-SA')}</span>
+        <span className="font-bold text-slate-400">{value.toLocaleString('en-US')} / {target.toLocaleString('en-US')}</span>
       </div>
       <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
         <div 
@@ -66,11 +66,11 @@ const MetricBox = ({ title, value, unit, beneficiaries, icon, color, beneficiary
     </div>
     <div className="flex items-end justify-between">
       <div>
-        <div className="text-2xl md:text-3xl font-black text-slate-800">{value.toLocaleString('ar-SA')}</div>
+        <div className="text-2xl md:text-3xl font-black text-slate-800">{value.toLocaleString('en-US')}</div>
         <div className="text-[10px] md:text-xs font-bold text-slate-400">{unit}</div>
       </div>
       <div className="text-left">
-        <div className="text-lg md:text-xl font-black" style={{ color }}>{beneficiaries.toLocaleString('ar-SA')}</div>
+        <div className="text-lg md:text-xl font-black" style={{ color }}>{beneficiaries.toLocaleString('en-US')}</div>
         <div className="text-[9px] md:text-[10px] font-bold text-slate-300 uppercase tracking-widest">{beneficiaryLabel}</div>
       </div>
     </div>
@@ -213,7 +213,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
           </div>
           <div className="bg-slate-50 px-4 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl border border-slate-100 w-full md:w-auto flex justify-between md:block">
             <span className="text-xs md:text-sm font-bold text-slate-500 ml-2">إجمالي الوجبات الموزعة:</span>
-            <span className="text-lg md:text-2xl font-black text-[#C5A059]">{stats.totalMeals.toLocaleString('ar-SA')}</span>
+            <span className="text-lg md:text-2xl font-black text-[#C5A059]">{stats.totalMeals.toLocaleString('en-US')}</span>
           </div>
         </div>
 
@@ -256,7 +256,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
                           <div className="space-y-1">
                             <div className="flex justify-between gap-4">
                               <span className="text-slate-400 font-bold text-[10px] md:text-sm">عدد الوجبات:</span>
-                              <span className="font-black text-[#003366] text-xs md:text-base">{data.value.toLocaleString('ar-SA')}</span>
+                              <span className="font-black text-[#003366] text-xs md:text-base">{data.value.toLocaleString('en-US')}</span>
                             </div>
                             <div className="flex justify-between gap-4">
                               <span className="text-slate-400 font-bold text-[10px] md:text-sm">النسبة من الإجمالي:</span>
@@ -283,7 +283,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
                   <span className="font-bold text-slate-700 text-sm">{item.name}</span>
                 </div>
                 <div className="text-left">
-                  <div className="font-black text-[#003366]">{item.value.toLocaleString('ar-SA')}</div>
+                  <div className="font-black text-[#003366]">{item.value.toLocaleString('en-US')}</div>
                   <div className="text-[10px] font-bold text-[#C5A059] uppercase tracking-tighter">وجبة</div>
                 </div>
               </div>
@@ -432,18 +432,18 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
             <div className="text-sm font-bold text-slate-400 mb-1">إجمالي البرامج</div>
-            <div className="text-3xl font-black text-[#003366]">{stats.totalCommunityPrograms.toLocaleString('ar-SA')}</div>
+            <div className="text-3xl font-black text-[#003366]">{stats.totalCommunityPrograms.toLocaleString('en-US')}</div>
             <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-1">مبادرة ميدانية</div>
           </div>
           <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
             <div className="text-sm font-bold text-slate-400 mb-1">إجمالي المستفيدين</div>
-            <div className="text-3xl font-black text-[#C5A059]">{stats.totalCommunityBeneficiaries.toLocaleString('ar-SA')}</div>
+            <div className="text-3xl font-black text-[#C5A059]">{stats.totalCommunityBeneficiaries.toLocaleString('en-US')}</div>
             <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-1">مستفيد مباشر</div>
           </div>
           <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
             <div className="text-sm font-bold text-slate-400 mb-1">متوسط المستفيدين/برنامج</div>
             <div className="text-3xl font-black text-[#0054A6]">
-              {stats.totalCommunityPrograms > 0 ? Math.round(stats.totalCommunityBeneficiaries / stats.totalCommunityPrograms).toLocaleString('ar-SA') : 0}
+              {stats.totalCommunityPrograms > 0 ? Math.round(stats.totalCommunityBeneficiaries / stats.totalCommunityPrograms).toLocaleString('en-US') : 0}
             </div>
             <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest mt-1">شخص لكل مبادرة</div>
           </div>
@@ -468,7 +468,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
                     )}
                     <div className="mt-2 flex items-center gap-2">
                       <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-black">
-                        {Number(r.عدد_المستفيدين).toLocaleString('ar-SA')} مستفيد
+                        {Number(r.عدد_المستفيدين).toLocaleString('en-US')} مستفيد
                       </span>
                     </div>
                   </div>
@@ -548,7 +548,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
                             fontWeight="bold" 
                             textAnchor="end"
                           >
-                            {(dataValue || 0).toLocaleString('ar-SA')} وجبة
+                            {(dataValue || 0).toLocaleString('en-US')} وجبة
                           </text>
                         </g>
                       );

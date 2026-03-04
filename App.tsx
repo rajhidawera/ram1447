@@ -7,8 +7,9 @@ import WelcomePage from './components/WelcomePage.tsx';
 import { TrendingUp, TrendingDown, Minus, BarChart3, MapPin, Calendar, LayoutGrid, Lock, Unlock } from 'lucide-react';
 import ActivityReports from './components/ActivityReports.tsx';
 import TrusteeDashboard from './components/TrusteeDashboard.tsx';
+import PhotoGallery from './components/PhotoGallery.tsx';
 
-type ViewState = 'dashboard' | 'reports' | 'trustee_dashboard';
+type ViewState = 'dashboard' | 'reports' | 'trustee_dashboard' | 'gallery';
 
 const App: React.FC = () => {
   const [isPlatformEntered, setIsPlatformEntered] = useState(false);
@@ -145,6 +146,7 @@ const App: React.FC = () => {
           <nav className="flex items-center bg-white/10 rounded-lg md:rounded-xl p-0.5 gap-0.5 border border-white/5 overflow-x-auto no-scrollbar">
             <button onClick={() => setView('dashboard')} className={`px-2.5 md:px-3 py-1 md:py-1.5 rounded-md md:rounded-lg text-[9px] md:text-xs font-bold transition-all whitespace-nowrap ${view === 'dashboard' ? 'bg-[#0054A6] text-white shadow-md' : 'text-white/60 hover:text-white'}`}>الرئيسية</button>
             <button onClick={() => setView('reports')} className={`px-2.5 md:px-3 py-1 md:py-1.5 rounded-md md:rounded-lg text-[9px] md:text-xs font-bold transition-all whitespace-nowrap ${view === 'reports' ? 'bg-[#0054A6] text-white shadow-md' : 'text-white/60 hover:text-white'}`}>التقارير</button>
+            <button onClick={() => setView('gallery')} className={`px-2.5 md:px-3 py-1 md:py-1.5 rounded-md md:rounded-lg text-[9px] md:text-xs font-bold transition-all whitespace-nowrap ${view === 'gallery' ? 'bg-[#0054A6] text-white shadow-md' : 'text-white/60 hover:text-white'}`}>المعرض</button>
             <button onClick={() => setView('trustee_dashboard')} className={`px-2.5 md:px-3 py-1 md:py-1.5 rounded-md md:rounded-lg text-[9px] md:text-xs font-bold transition-all whitespace-nowrap ${view === 'trustee_dashboard' ? 'bg-[#C5A059] text-white shadow-md' : 'text-white/60 hover:text-white'}`}>التقرير العام</button>
           </nav>
 
@@ -200,6 +202,7 @@ const App: React.FC = () => {
             days={daysList} 
             photos={photosList}
             onNavigateToTrustee={() => setView('trustee_dashboard')}
+            onNavigateToGallery={() => setView('gallery')}
           />
         )}
         {view === 'reports' && (
@@ -214,6 +217,13 @@ const App: React.FC = () => {
           <TrusteeDashboard
             records={approvedRecords}
             mosques={mosquesList}
+            onBack={() => setView('dashboard')}
+          />
+        )}
+        {view === 'gallery' && (
+          <PhotoGallery
+            mosques={mosquesList}
+            photos={photosList}
             onBack={() => setView('dashboard')}
           />
         )}

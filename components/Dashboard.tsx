@@ -10,9 +10,10 @@ interface DashboardProps {
   days: DayInfo[];
   photos: PhotoRecord[];
   onNavigateToTrustee: () => void;
+  onNavigateToGallery: () => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ records, mosques, days, photos, onNavigateToTrustee }) => {
+const Dashboard: React.FC<DashboardProps> = ({ records, mosques, days, photos, onNavigateToTrustee, onNavigateToGallery }) => {
     const totalWorshippers = records.reduce((sum, r) => {
     const men = parseInt(String(r.عدد_المصلين_رجال), 10) || 0;
     const women = parseInt(String(r.عدد_المصلين_نساء), 10) || 0;
@@ -56,7 +57,7 @@ const Dashboard: React.FC<DashboardProps> = ({ records, mosques, days, photos, o
       <ImageSlider photos={photos} />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <button onClick={onNavigateToTrustee} className="md:col-span-3 bg-[#003366] p-10 rounded-[3rem] shadow-2xl shadow-[#003366]/20 text-white flex flex-col md:flex-row items-center justify-between gap-8 group hover:scale-[1.02] transition-all border-b-8 border-[#C5A059]">
+        <button onClick={onNavigateToTrustee} className="md:col-span-2 bg-[#003366] p-10 rounded-[3rem] shadow-2xl shadow-[#003366]/20 text-white flex flex-col md:flex-row items-center justify-between gap-8 group hover:scale-[1.02] transition-all border-b-8 border-[#C5A059]">
           <div className="flex items-center gap-6">
             <div className="w-20 h-20 bg-white/10 rounded-[2rem] flex items-center justify-center text-4xl group-hover:rotate-12 transition-transform">🏛️</div>
             <div className="text-right">
@@ -64,11 +65,20 @@ const Dashboard: React.FC<DashboardProps> = ({ records, mosques, days, photos, o
               <p className="text-white/60 font-bold mt-1">تقارير استراتيجية، مؤشرات الأداء، وحجم الأثر الميداني</p>
             </div>
           </div>
-          <div className="px-8 py-4 bg-[#C5A059] rounded-2xl font-black shadow-lg group-hover:px-10 transition-all flex items-center gap-2">
-            <span>دخول العرض الاستراتيجي</span>
+          <div className="px-8 py-4 bg-[#C5A059] rounded-2xl font-black shadow-lg group-hover:px-10 transition-all flex items-center gap-2 shrink-0">
+            <span>دخول</span>
             <ArrowUpRight className="w-5 h-5" />
           </div>
         </button>
+
+        <button onClick={onNavigateToGallery} className="bg-white p-10 rounded-[3rem] shadow-xl border border-slate-100 flex flex-col items-center justify-center gap-4 group hover:scale-[1.02] transition-all hover:border-[#C5A059]/30">
+          <div className="w-20 h-20 bg-[#C5A059]/10 rounded-[2rem] flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">📸</div>
+          <div className="text-center">
+            <h3 className="text-2xl font-black text-[#003366]">معرض الصور</h3>
+            <p className="text-slate-400 font-bold mt-1 text-sm">التوثيق الميداني للمواقع</p>
+          </div>
+        </button>
+
         <StatCard label="إجمالي المصلين" value={totalWorshippers} color="#0054A6" icon="👥" />
         <StatCard label="وجبات الإفطار" value={totalIftarMeals} color="#C5A059" icon="🍱" />
         <StatCard label="طلاب الحلقات" value={totalStudents} color="#003366" icon="📖" />
@@ -84,7 +94,7 @@ const StatCard = ({ label, value, color, icon }: { label: string, value: number,
       <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{label}</span>
       <span className="text-xl">{icon}</span>
     </div>
-    <h4 className="text-4xl font-black tabular-nums" style={{ color }}>{value.toLocaleString('ar-SA')}</h4>
+    <h4 className="text-4xl font-black tabular-nums" style={{ color }}>{value.toLocaleString('en-US')}</h4>
   </div>
 );
 
