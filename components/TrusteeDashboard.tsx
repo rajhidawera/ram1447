@@ -167,7 +167,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
       </div>
 
       {/* High Level Impact Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <ImpactCard 
           title="إجمالي المستفيدين" 
           value={stats.totalWorshippers + stats.totalCommunityBeneficiaries + stats.totalLectureBeneficiaries + stats.totalHospitalityBeneficiaries} 
@@ -190,11 +190,25 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
           subtitle="حلقات التحفيظ"
         />
         <ImpactCard 
-          title="القوى البشرية" 
-          value={stats.totalVolunteers + stats.totalSupervisors} 
+          title="السقيا" 
+          value={stats.totalWater} 
+          icon={<Droplets className="w-6 h-6" />} 
+          color="#0ea5e9"
+          subtitle="كرتون ماء"
+        />
+        <ImpactCard 
+          title="المتطوعين" 
+          value={stats.totalVolunteers} 
+          icon={<Heart className="w-6 h-6" />} 
+          color="#e11d48"
+          subtitle="سواعد الخير"
+        />
+        <ImpactCard 
+          title="المشرفين" 
+          value={stats.totalSupervisors} 
           icon={<UsersRound className="w-6 h-6" />} 
           color="#5a7b9c"
-          subtitle="متطوع ومشرف"
+          subtitle="إشراف ميداني"
         />
       </div>
 
