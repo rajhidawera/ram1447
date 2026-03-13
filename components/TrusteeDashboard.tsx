@@ -81,6 +81,16 @@ const LayoutGrid = ({ className }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
 );
 
+const PrayerRug = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <rect x="5" y="3" width="14" height="18" rx="2" />
+    <path d="M5 7h14" />
+    <path d="M5 17h14" />
+    <path d="M12 9l-2 3h4l-2-3z" />
+    <path d="M12 12v3" />
+  </svg>
+);
+
 const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, onBack }) => {
   
   const [isMobile, setIsMobile] = React.useState(false);
@@ -101,6 +111,8 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
       acc.totalQuranPages += (Number(r.عدد_الاوجه_طلاب) || 0) + (Number(r.عدد_الاوجه_طالبات) || 0);
       acc.totalVolunteers += (Number(r.عدد_المتطوعين) || 0);
       acc.totalSupervisors += (Number(r["عدد المشرفين"]) || 0);
+      acc.totalItikaf += (Number(r.عدد_المعتكفين_رجال) || 0) + (Number(r.عدد_المعتكفين_نساء) || 0);
+      acc.totalSuhoor += (Number(r.عدد_وجبات_السحور_رجال) || 0) + (Number(r.عدد_وجبات_السحور_نساء) || 0);
       acc.totalLectures += (Number(r.عدد_الكلمات_الرجالية) || 0) + (Number(r.عدد_الكلمات_النسائية) || 0);
       acc.totalLectureBeneficiaries += (Number(r.عدد_مستفيدي_الكلمات) || 0);
       acc.totalCommunityBeneficiaries += (Number(r.عدد_المستفيدين) || 0);
@@ -117,6 +129,8 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
       totalQuranPages: 0,
       totalVolunteers: 0,
       totalSupervisors: 0,
+      totalItikaf: 0,
+      totalSuhoor: 0,
       totalLectures: 0,
       totalLectureBeneficiaries: 0,
       totalCommunityBeneficiaries: 0,
@@ -140,10 +154,12 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
     records.forEach(r => {
       const day = r.label_day || 'غير محدد';
       if (!data[day]) {
-        data[day] = { name: day, worshippers: 0, meals: 0, lectures: 0, lectureBeneficiaries: 0 };
+        data[day] = { name: day, worshippers: 0, meals: 0, itikaf: 0, suhoor: 0, lectures: 0, lectureBeneficiaries: 0 };
       }
       data[day].worshippers += (Number(r.عدد_المصلين_رجال) || 0) + (Number(r.عدد_المصلين_نساء) || 0);
       data[day].meals += (Number(r.عدد_وجبات_الافطار_فعلي) || 0);
+      data[day].itikaf += (Number(r.عدد_المعتكفين_رجال) || 0) + (Number(r.عدد_المعتكفين_نساء) || 0);
+      data[day].suhoor += (Number(r.عدد_وجبات_السحور_رجال) || 0) + (Number(r.عدد_وجبات_السحور_نساء) || 0);
       data[day].lectures += (Number(r.عدد_الكلمات_الرجالية) || 0) + (Number(r.عدد_الكلمات_النسائية) || 0);
       data[day].lectureBeneficiaries += (Number(r.عدد_مستفيدي_الكلمات) || 0);
     });
@@ -167,10 +183,10 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
       </div>
 
       {/* High Level Impact Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <ImpactCard 
           title="إجمالي المستفيدين" 
-          value={stats.totalWorshippers + stats.totalCommunityBeneficiaries + stats.totalLectureBeneficiaries + stats.totalHospitalityBeneficiaries} 
+          value={stats.totalWorshippers + stats.totalCommunityBeneficiaries + stats.totalLectureBeneficiaries + stats.totalHospitalityBeneficiaries + stats.totalItikaf} 
           icon={<Users className="w-6 h-6" />} 
           color="#003366"
           subtitle="أثر مجتمعي مباشر"
@@ -183,11 +199,25 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
           subtitle="إطعام صائم"
         />
         <ImpactCard 
+          title="وجبات السحور" 
+          value={stats.totalSuhoor} 
+          icon={<Coffee className="w-6 h-6" />} 
+          color="#e11d48"
+          subtitle="سحور المعتكفين"
+        />
+        <ImpactCard 
           title="أوجه القرآن المنجزة" 
           value={stats.totalQuranPages} 
           icon={<BookOpen className="w-6 h-6" />} 
           color="#0054A6"
           subtitle="حلقات التحفيظ"
+        />
+        <ImpactCard 
+          title="الاعتكاف" 
+          value={stats.totalItikaf} 
+          icon={<PrayerRug className="w-6 h-6" />} 
+          color="#0ea5e9"
+          subtitle="إحياء السنة"
         />
         <ImpactCard 
           title="السقيا" 
@@ -327,6 +357,14 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
                     <stop offset="5%" stopColor="#C5A059" stopOpacity={0.3}/>
                     <stop offset="95%" stopColor="#C5A059" stopOpacity={0}/>
                   </linearGradient>
+                  <linearGradient id="colorItikaf" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0}/>
+                  </linearGradient>
+                  <linearGradient id="colorSuhoor" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#e11d48" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#e11d48" stopOpacity={0}/>
+                  </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontWeight: 700, fontSize: 12}} />
@@ -337,6 +375,8 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
                 <Legend verticalAlign="top" align="right" height={36}/>
                 <Area type="monotone" dataKey="worshippers" name="المصلين" stroke="#003366" strokeWidth={3} fillOpacity={1} fill="url(#colorWorshippers)" />
                 <Area type="monotone" dataKey="meals" name="الوجبات" stroke="#C5A059" strokeWidth={3} fillOpacity={1} fill="url(#colorMeals)" />
+                <Area type="monotone" dataKey="itikaf" name="المعتكفين" stroke="#0ea5e9" strokeWidth={3} fillOpacity={1} fill="url(#colorItikaf)" />
+                <Area type="monotone" dataKey="suhoor" name="السحور" stroke="#e11d48" strokeWidth={3} fillOpacity={1} fill="url(#colorSuhoor)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
