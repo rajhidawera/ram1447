@@ -97,6 +97,22 @@ export interface VisitRecord {
 }
 
 
+export interface EidRecord {
+  record_id: string;
+  created_at: string;
+  label_day: string;
+  code_day: string;
+  mosque_code: string;
+  المسجد: string;
+  "نوع الموقع": string;
+  تاريخ_هجري: string;
+  عدد_المصلين_رجال: number | string;
+  عدد_المصلين_نساء: number | string;
+  عدد_هدايا_العيد: number | string;
+  السقيا: number | string;
+  ملاحظات: string;
+}
+
 export interface PhotoRecord {
   public_id: string;
   secure_url: string;
@@ -129,5 +145,6 @@ export interface ApiResponse {
     photo: PhotoRecord[];
     Fast_eval: FastEvalRecord[];
     Visit: VisitRecord[];
+    eid_report: EidRecord[];
   };
 }

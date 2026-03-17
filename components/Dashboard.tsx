@@ -74,8 +74,8 @@ const Dashboard: React.FC<DashboardProps> = ({ records, mosques, days, photos, o
         <button onClick={onNavigateToGallery} className="bg-white p-10 rounded-[3rem] shadow-xl border border-slate-100 flex flex-col items-center justify-center gap-4 group hover:scale-[1.02] transition-all hover:border-[#C5A059]/30">
           <div className="w-20 h-20 bg-[#C5A059]/10 rounded-[2rem] flex items-center justify-center text-4xl group-hover:scale-110 transition-transform">📸</div>
           <div className="text-center">
-            <h3 className="text-2xl font-black text-[#003366]">معرض الصور</h3>
-            <p className="text-slate-400 font-bold mt-1 text-sm">التوثيق الميداني للمواقع</p>
+            <h3 className="text-2xl font-black text-[#003366]">معرض الوسائط</h3>
+            <p className="text-slate-400 font-bold mt-1 text-sm">التوثيق الميداني (صور وفيديو)</p>
           </div>
         </button>
 

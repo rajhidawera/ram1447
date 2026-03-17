@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { mosqueApi } from './services/api.ts';
-import { MosqueRecord, MaintenanceRecord, PhotoRecord, MosqueInfo, DayInfo, FastEvalRecord, VisitRecord } from './types.ts';
+import { MosqueRecord, MaintenanceRecord, PhotoRecord, MosqueInfo, DayInfo, FastEvalRecord, VisitRecord, EidRecord } from './types.ts';
 import Dashboard from './components/Dashboard.tsx';
 import WelcomePage from './components/WelcomePage.tsx';
 import { TrendingUp, TrendingDown, Minus, BarChart3, MapPin, Calendar, LayoutGrid, Lock, Unlock } from 'lucide-react';
@@ -15,6 +15,7 @@ const App: React.FC = () => {
   const [isPlatformEntered, setIsPlatformEntered] = useState(false);
   const [view, setView] = useState<ViewState>('dashboard');
   const [records, setRecords] = useState<MosqueRecord[]>([]);
+  const [eidRecords, setEidRecords] = useState<EidRecord[]>([]);
   const [photosList, setPhotosList] = useState<PhotoRecord[]>([]);
   const [mosquesList, setMosquesList] = useState<MosqueInfo[]>([]);
   const [daysList, setDaysList] = useState<DayInfo[]>([]);
@@ -30,6 +31,7 @@ const App: React.FC = () => {
       const response = await mosqueApi.getAll();
       if (response && response.success && response.sheets) {
         setRecords(response.sheets.daily_mosque_report || []);
+        setEidRecords(response.sheets.eid_report || []);
         setPhotosList(response.sheets.photo || []);
         setMosquesList(response.sheets.mosque || []);
         setDaysList(response.sheets.Dayd || []);
@@ -146,7 +148,7 @@ const App: React.FC = () => {
           <nav className="flex items-center bg-white/10 rounded-lg md:rounded-xl p-0.5 gap-0.5 border border-white/5 overflow-x-auto no-scrollbar">
             <button onClick={() => setView('dashboard')} className={`px-2.5 md:px-3 py-1 md:py-1.5 rounded-md md:rounded-lg text-[9px] md:text-xs font-bold transition-all whitespace-nowrap ${view === 'dashboard' ? 'bg-[#0054A6] text-white shadow-md' : 'text-white/60 hover:text-white'}`}>الرئيسية</button>
             <button onClick={() => setView('reports')} className={`px-2.5 md:px-3 py-1 md:py-1.5 rounded-md md:rounded-lg text-[9px] md:text-xs font-bold transition-all whitespace-nowrap ${view === 'reports' ? 'bg-[#0054A6] text-white shadow-md' : 'text-white/60 hover:text-white'}`}>التقارير</button>
-            <button onClick={() => setView('gallery')} className={`px-2.5 md:px-3 py-1 md:py-1.5 rounded-md md:rounded-lg text-[9px] md:text-xs font-bold transition-all whitespace-nowrap ${view === 'gallery' ? 'bg-[#0054A6] text-white shadow-md' : 'text-white/60 hover:text-white'}`}>المعرض</button>
+            <button onClick={() => setView('gallery')} className={`px-2.5 md:px-3 py-1 md:py-1.5 rounded-md md:rounded-lg text-[9px] md:text-xs font-bold transition-all whitespace-nowrap ${view === 'gallery' ? 'bg-[#0054A6] text-white shadow-md' : 'text-white/60 hover:text-white'}`}>معرض الوسائط</button>
             <button onClick={() => setView('trustee_dashboard')} className={`px-2.5 md:px-3 py-1 md:py-1.5 rounded-md md:rounded-lg text-[9px] md:text-xs font-bold transition-all whitespace-nowrap ${view === 'trustee_dashboard' ? 'bg-[#C5A059] text-white shadow-md' : 'text-white/60 hover:text-white'}`}>التقرير العام</button>
           </nav>
 
@@ -208,6 +210,7 @@ const App: React.FC = () => {
         {view === 'reports' && (
           <ActivityReports
             records={approvedRecords}
+            eidRecords={eidRecords}
             mosques={mosquesList}
             days={daysList}
             onBack={() => setView('dashboard')}
@@ -216,6 +219,7 @@ const App: React.FC = () => {
         {view === 'trustee_dashboard' && (
           <TrusteeDashboard
             records={approvedRecords}
+            eidRecords={eidRecords}
             mosques={mosquesList}
             onBack={() => setView('dashboard')}
           />

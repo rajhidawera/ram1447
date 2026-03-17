@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { MosqueRecord, MosqueInfo } from '../types.ts';
+import { MosqueRecord, MosqueInfo, EidRecord } from '../types.ts';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   PieChart, Pie, Cell, LineChart, Line, AreaChart, Area, Legend, LabelList
@@ -12,6 +12,7 @@ import {
 
 interface TrusteeDashboardProps {
   records: MosqueRecord[];
+  eidRecords: EidRecord[];
   mosques: MosqueInfo[];
   onBack: () => void;
 }
@@ -91,7 +92,7 @@ const PrayerRug = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, onBack }) => {
+const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, eidRecords, mosques, onBack }) => {
   
   const [isMobile, setIsMobile] = React.useState(false);
 
@@ -103,7 +104,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
   }, []);
 
   const stats = useMemo(() => {
-    return records.reduce((acc, r) => {
+    const baseStats = records.reduce((acc, r) => {
       acc.totalWorshippers += (Number(r.عدد_المصلين_رجال) || 0) + (Number(r.عدد_المصلين_نساء) || 0);
       acc.totalMeals += (Number(r.عدد_وجبات_الافطار_فعلي) || 0);
       acc.totalWater += (Number(r.عدد_كراتين_ماء) || 0);
@@ -137,7 +138,23 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
       totalHospitalityBeneficiaries: 0,
       totalCommunityPrograms: 0
     });
-  }, [records]);
+
+    const eidStats = eidRecords.reduce((acc, r) => {
+      acc.totalEidGifts += (Number(r.عدد_هدايا_العيد) || 0);
+      acc.totalEidWorshippers += (Number(r.عدد_المصلين_رجال) || 0) + (Number(r.عدد_المصلين_نساء) || 0);
+      acc.totalEidWater += (Number(r.السقيا) || 0);
+      return acc;
+    }, {
+      totalEidGifts: 0,
+      totalEidWorshippers: 0,
+      totalEidWater: 0
+    });
+
+    return {
+      ...baseStats,
+      ...eidStats
+    };
+  }, [records, eidRecords]);
 
   const mosqueDistribution = useMemo(() => {
     const data: { [key: string]: number } = {};
@@ -154,7 +171,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
     records.forEach(r => {
       const day = r.label_day || 'غير محدد';
       if (!data[day]) {
-        data[day] = { name: day, worshippers: 0, meals: 0, itikaf: 0, suhoor: 0, lectures: 0, lectureBeneficiaries: 0 };
+        data[day] = { name: day, worshippers: 0, meals: 0, itikaf: 0, suhoor: 0, lectures: 0, lectureBeneficiaries: 0, eidGifts: 0 };
       }
       data[day].worshippers += (Number(r.عدد_المصلين_رجال) || 0) + (Number(r.عدد_المصلين_نساء) || 0);
       data[day].meals += (Number(r.عدد_وجبات_الافطار_فعلي) || 0);
@@ -163,8 +180,18 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
       data[day].lectures += (Number(r.عدد_الكلمات_الرجالية) || 0) + (Number(r.عدد_الكلمات_النسائية) || 0);
       data[day].lectureBeneficiaries += (Number(r.عدد_مستفيدي_الكلمات) || 0);
     });
+    
+    eidRecords.forEach(r => {
+      const day = r.label_day || 'غير محدد';
+      if (!data[day]) {
+        data[day] = { name: day, worshippers: 0, meals: 0, itikaf: 0, suhoor: 0, lectures: 0, lectureBeneficiaries: 0, eidGifts: 0 };
+      }
+      data[day].worshippers += (Number(r.عدد_المصلين_رجال) || 0) + (Number(r.عدد_المصلين_نساء) || 0);
+      data[day].eidGifts += (Number(r.عدد_هدايا_العيد) || 0);
+    });
+    
     return Object.values(data);
-  }, [records]);
+  }, [records, eidRecords]);
 
   return (
     <div className="space-y-8 animate-in fade-in text-right" dir="rtl">
@@ -186,7 +213,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <ImpactCard 
           title="إجمالي المستفيدين" 
-          value={stats.totalWorshippers + stats.totalCommunityBeneficiaries + stats.totalLectureBeneficiaries + stats.totalHospitalityBeneficiaries + stats.totalItikaf} 
+          value={stats.totalWorshippers + stats.totalCommunityBeneficiaries + stats.totalLectureBeneficiaries + stats.totalHospitalityBeneficiaries + stats.totalItikaf + stats.totalEidWorshippers} 
           icon={<Users className="w-6 h-6" />} 
           color="#003366"
           subtitle="أثر مجتمعي مباشر"
@@ -206,6 +233,13 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
           subtitle="سحور المعتكفين"
         />
         <ImpactCard 
+          title="هدايا العيد" 
+          value={stats.totalEidGifts} 
+          icon={<Award className="w-6 h-6" />} 
+          color="#C5A059"
+          subtitle="فرحة العيد"
+        />
+        <ImpactCard 
           title="أوجه القرآن المنجزة" 
           value={stats.totalQuranPages} 
           icon={<BookOpen className="w-6 h-6" />} 
@@ -221,7 +255,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
         />
         <ImpactCard 
           title="السقيا" 
-          value={stats.totalWater} 
+          value={stats.totalWater + stats.totalEidWater} 
           icon={<Droplets className="w-6 h-6" />} 
           color="#0ea5e9"
           subtitle="كرتون ماء"
@@ -365,6 +399,10 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
                     <stop offset="5%" stopColor="#e11d48" stopOpacity={0.3}/>
                     <stop offset="95%" stopColor="#e11d48" stopOpacity={0}/>
                   </linearGradient>
+                  <linearGradient id="colorEid" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#C5A059" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#C5A059" stopOpacity={0}/>
+                  </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontWeight: 700, fontSize: 12}} />
@@ -377,6 +415,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, mosques, o
                 <Area type="monotone" dataKey="meals" name="الوجبات" stroke="#C5A059" strokeWidth={3} fillOpacity={1} fill="url(#colorMeals)" />
                 <Area type="monotone" dataKey="itikaf" name="المعتكفين" stroke="#0ea5e9" strokeWidth={3} fillOpacity={1} fill="url(#colorItikaf)" />
                 <Area type="monotone" dataKey="suhoor" name="السحور" stroke="#e11d48" strokeWidth={3} fillOpacity={1} fill="url(#colorSuhoor)" />
+                <Area type="monotone" dataKey="eidGifts" name="هدايا العيد" stroke="#C5A059" strokeWidth={3} fillOpacity={1} fill="url(#colorEid)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>

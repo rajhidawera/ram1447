@@ -7,7 +7,9 @@ import {
   MapPin, 
   Maximize2, 
   X,
-  ArrowRight
+  ArrowRight,
+  Play,
+  Video
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -20,7 +22,7 @@ interface PhotoGalleryProps {
 const PhotoGallery: React.FC<PhotoGalleryProps> = ({ mosques, photos, onBack }) => {
   const [selectedMosqueCode, setSelectedMosqueCode] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  const [selectedMedia, setSelectedMedia] = useState<PhotoRecord | null>(null);
   const [isMobile, setIsMobile] = useState(false);
 
   React.useEffect(() => {
@@ -29,6 +31,21 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ mosques, photos, onBack }) 
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  const isVideo = (item: PhotoRecord) => {
+    if (!item) return false;
+    const videoExtensions = ['.mp4', '.mov', '.webm', '.ogg', '.m4v', '.mkv', '.avi', '.quicktime'];
+    const videoFormats = ['mp4', 'mov', 'webm', 'ogg', 'm4v', 'video', 'quicktime'];
+    
+    const format = (item.format || '').toLowerCase();
+    const url = (item.secure_url || '').toLowerCase();
+    
+    const formatMatch = videoFormats.includes(format);
+    const urlMatch = videoExtensions.some(ext => url.endsWith(ext) || url.includes(ext + '?'));
+    const cloudinaryVideoMatch = url.includes('/video/upload/');
+    
+    return formatMatch || urlMatch || cloudinaryVideoMatch;
+  };
 
   const filteredMosques = useMemo(() => {
     return mosques.filter(m => 
@@ -61,11 +78,11 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ mosques, photos, onBack }) 
       <div className="bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-[#003366]/10 rounded-2xl flex items-center justify-center text-[#003366]">
-            <ImageIcon className="w-6 h-6" />
+            <Video className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-2xl md:text-3xl font-black text-[#003366]">معرض الصور الميداني 📸</h2>
-            <p className="text-slate-500 font-bold mt-1 text-xs md:text-base">توثيق بصري لجميع الأنشطة والخدمات في المواقع</p>
+            <h2 className="text-2xl md:text-3xl font-black text-[#003366]">معرض الوسائط الميداني 📸🎥</h2>
+            <p className="text-slate-500 font-bold mt-1 text-xs md:text-base">توثيق بصري (صور وفيديو) لجميع الأنشطة والخدمات</p>
           </div>
         </div>
         <button 
@@ -115,9 +132,15 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ mosques, photos, onBack }) 
                     {mosque.المسجد}
                   </h3>
                   <div className="flex items-center justify-between mt-4">
-                    <div className="flex items-center gap-2 text-slate-400 font-bold text-sm">
-                      <ImageIcon className="w-4 h-4" />
-                      <span>{photoCount} صورة</span>
+                    <div className="flex flex-wrap gap-3 text-slate-400 font-bold text-sm">
+                      <div className="flex items-center gap-1.5">
+                        <ImageIcon className="w-4 h-4" />
+                        <span>{photos.filter(p => p.tags === mosque.mosque_code && !isVideo(p)).length}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Video className="w-4 h-4" />
+                        <span>{photos.filter(p => p.tags === mosque.mosque_code && isVideo(p)).length}</span>
+                      </div>
                     </div>
                     <ChevronRight className="w-5 h-5 text-slate-300 group-hover:translate-x-[-5px] transition-transform" />
                   </div>
@@ -151,17 +174,39 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ mosques, photos, onBack }) 
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: idx * 0.05 }}
                   className="relative aspect-square rounded-[1.5rem] md:rounded-[2rem] overflow-hidden group cursor-pointer shadow-sm hover:shadow-xl transition-all"
-                  onClick={() => setSelectedPhoto(photo.secure_url)}
+                  onClick={() => setSelectedMedia(photo)}
                 >
-                  <img 
-                    src={photo.secure_url} 
-                    alt={`Photo ${idx + 1}`}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Maximize2 className="text-white w-8 h-8" />
-                  </div>
+                  {isVideo(photo) ? (
+                    <div className="w-full h-full bg-slate-900 flex items-center justify-center relative">
+                      <video 
+                        src={photo.secure_url} 
+                        className="w-full h-full object-cover opacity-60"
+                        muted
+                        playsInline
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 group-hover:scale-110 transition-transform">
+                          <Play className="text-white fill-white w-6 h-6" />
+                        </div>
+                      </div>
+                      <div className="absolute bottom-3 right-3 bg-black/50 backdrop-blur-sm px-2 py-1 rounded-lg text-[10px] text-white font-black flex items-center gap-1">
+                        <Video className="w-3 h-3" />
+                        <span>فيديو</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <img 
+                        src={photo.secure_url} 
+                        alt={`Photo ${idx + 1}`}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        referrerPolicy="no-referrer"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Maximize2 className="text-white w-8 h-8" />
+                      </div>
+                    </>
+                  )}
                 </motion.div>
               ))}
             </div>
@@ -177,30 +222,41 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ mosques, photos, onBack }) 
 
       {/* Lightbox Overlay */}
       <AnimatePresence>
-        {selectedPhoto && (
+        {selectedMedia && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4 md:p-10"
-            onClick={() => setSelectedPhoto(null)}
+            onClick={() => setSelectedMedia(null)}
           >
             <button 
-              className="absolute top-6 right-6 text-white/70 hover:text-white transition-colors"
-              onClick={() => setSelectedPhoto(null)}
+              className="absolute top-6 right-6 text-white/70 hover:text-white transition-colors z-[110]"
+              onClick={() => setSelectedMedia(null)}
             >
               <X className="w-10 h-10" />
             </button>
-            <motion.img
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              src={selectedPhoto}
-              alt="Full view"
-              className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl"
-              referrerPolicy="no-referrer"
-              onClick={(e) => e.stopPropagation()}
-            />
+            
+            <div className="w-full max-w-5xl max-h-full flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+              {isVideo(selectedMedia) ? (
+                <video 
+                  src={selectedMedia.secure_url} 
+                  controls 
+                  autoPlay 
+                  className="max-w-full max-h-[85vh] rounded-2xl shadow-2xl"
+                />
+              ) : (
+                <motion.img
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.9, opacity: 0 }}
+                  src={selectedMedia.secure_url}
+                  alt="Full view"
+                  className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl"
+                  referrerPolicy="no-referrer"
+                />
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

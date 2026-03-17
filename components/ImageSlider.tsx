@@ -9,33 +9,50 @@ interface ImageSliderProps {
 const ImageSlider: React.FC<ImageSliderProps> = ({ photos }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const goToPrevious = () => {
-    const isFirstSlide = currentIndex === 0;
-    const newIndex = isFirstSlide ? photos.length - 1 : currentIndex - 1;
-    setCurrentIndex(newIndex);
+  const isVideo = (item: PhotoRecord) => {
+    if (!item) return false;
+    const videoExtensions = ['.mp4', '.mov', '.webm', '.ogg', '.m4v', '.mkv', '.avi', '.quicktime'];
+    const videoFormats = ['mp4', 'mov', 'webm', 'ogg', 'm4v', 'video', 'quicktime'];
+    
+    const format = (item.format || '').toLowerCase();
+    const url = (item.secure_url || '').toLowerCase();
+    
+    const formatMatch = videoFormats.includes(format);
+    const urlMatch = videoExtensions.some(ext => url.endsWith(ext) || url.includes(ext + '?'));
+    const cloudinaryVideoMatch = url.includes('/video/upload/');
+    
+    return formatMatch || urlMatch || cloudinaryVideoMatch;
   };
 
-  const goToNext = () => {
-    const isLastSlide = currentIndex === photos.length - 1;
-    const newIndex = isLastSlide ? 0 : currentIndex + 1;
-    setCurrentIndex(newIndex);
-  };
+  const displayPhotos = photos.filter(p => !isVideo(p));
 
   useEffect(() => {
-    if (photos.length === 0) return;
+    if (displayPhotos.length === 0) return;
     const interval = setInterval(() => {
       goToNext();
     }, 5000);
     return () => clearInterval(interval);
-  }, [photos, currentIndex]);
+  }, [displayPhotos, currentIndex]);
 
-  if (photos.length === 0) return null;
+  const goToPrevious = () => {
+    const isFirstSlide = currentIndex === 0;
+    const newIndex = isFirstSlide ? displayPhotos.length - 1 : currentIndex - 1;
+    setCurrentIndex(newIndex);
+  };
+
+  const goToNext = () => {
+    const isLastSlide = currentIndex === displayPhotos.length - 1;
+    const newIndex = isLastSlide ? 0 : currentIndex + 1;
+    setCurrentIndex(newIndex);
+  };
+
+  if (displayPhotos.length === 0) return null;
 
   return (
     <div className="relative w-full h-[300px] sm:h-[450px] rounded-[3rem] overflow-hidden shadow-2xl group">
       {/* Images container */}
       <div className="relative w-full h-full flex transition-transform duration-700 ease-in-out" style={{ transform: `translateX(${currentIndex * 100}%)` }}>
-        {photos.map((photo, index) => (
+        {displayPhotos.map((photo, index) => (
           <div key={photo.public_id} className="min-w-full h-full relative">
             <img 
               src={photo.webp_url || photo.secure_url} 
@@ -77,7 +94,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ photos }) => {
 
       {/* Dots */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-        {photos.map((_, i) => (
+        {displayPhotos.map((_, i) => (
           <button 
             key={i} 
             onClick={() => setCurrentIndex(i)}
