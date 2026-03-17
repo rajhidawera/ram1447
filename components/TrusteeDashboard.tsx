@@ -7,7 +7,7 @@ import {
 import { 
   Users, Utensils, BookOpen, Heart, Presentation, 
   UsersRound, Award, Droplets, ArrowUpRight, TrendingUp, MapPin,
-  Coffee, Sparkles
+  Coffee, Sparkles, Printer, Download, Check, ChevronDown, X as CloseIcon
 } from 'lucide-react';
 
 interface TrusteeDashboardProps {
@@ -95,16 +95,32 @@ const PrayerRug = ({ className }: { className?: string }) => (
 const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, eidRecords, mosques, onBack }) => {
   
   const [isMobile, setIsMobile] = React.useState(false);
+  const [selectedMosqueCodes, setSelectedMosqueCodes] = React.useState<string[]>([]);
+  const [isFilterOpen, setIsFilterOpen] = React.useState(false);
 
   React.useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
     window.addEventListener('resize', checkMobile);
+    
+    // Initialize with all mosques selected
+    setSelectedMosqueCodes(mosques.map(m => m.mosque_code));
+    
     return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  }, [mosques]);
+
+  const filteredRecords = useMemo(() => {
+    if (selectedMosqueCodes.length === 0) return [];
+    return records.filter(r => selectedMosqueCodes.includes(r.mosque_code));
+  }, [records, selectedMosqueCodes]);
+
+  const filteredEidRecords = useMemo(() => {
+    if (selectedMosqueCodes.length === 0) return [];
+    return eidRecords.filter(r => selectedMosqueCodes.includes(r.mosque_code));
+  }, [eidRecords, selectedMosqueCodes]);
 
   const stats = useMemo(() => {
-    const baseStats = records.reduce((acc, r) => {
+    const baseStats = filteredRecords.reduce((acc, r) => {
       acc.totalWorshippers += (Number(r.عدد_المصلين_رجال) || 0) + (Number(r.عدد_المصلين_نساء) || 0);
       acc.totalMeals += (Number(r.عدد_وجبات_الافطار_فعلي) || 0);
       acc.totalWater += (Number(r.عدد_كراتين_ماء) || 0);
@@ -139,7 +155,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, eidRecords
       totalCommunityPrograms: 0
     });
 
-    const eidStats = eidRecords.reduce((acc, r) => {
+    const eidStats = filteredEidRecords.reduce((acc, r) => {
       acc.totalEidGifts += (Number(r.عدد_هدايا_العيد) || 0);
       acc.totalEidWorshippers += (Number(r.عدد_المصلين_رجال) || 0) + (Number(r.عدد_المصلين_نساء) || 0);
       acc.totalEidWater += (Number(r.السقيا) || 0);
@@ -154,21 +170,21 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, eidRecords
       ...baseStats,
       ...eidStats
     };
-  }, [records, eidRecords]);
+  }, [filteredRecords, filteredEidRecords]);
 
   const mosqueDistribution = useMemo(() => {
     const data: { [key: string]: number } = {};
-    records.forEach(r => {
+    filteredRecords.forEach(r => {
       data[r.المسجد] = (data[r.المسجد] || 0) + (Number(r.عدد_وجبات_الافطار_فعلي) || 0);
     });
     return Object.entries(data)
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value);
-  }, [records]);
+  }, [filteredRecords]);
 
   const dailyGrowth = useMemo(() => {
     const data: { [key: string]: any } = {};
-    records.forEach(r => {
+    filteredRecords.forEach(r => {
       const day = r.label_day || 'غير محدد';
       if (!data[day]) {
         data[day] = { name: day, worshippers: 0, meals: 0, itikaf: 0, suhoor: 0, lectures: 0, lectureBeneficiaries: 0, eidGifts: 0 };
@@ -181,7 +197,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, eidRecords
       data[day].lectureBeneficiaries += (Number(r.عدد_مستفيدي_الكلمات) || 0);
     });
     
-    eidRecords.forEach(r => {
+    filteredEidRecords.forEach(r => {
       const day = r.label_day || 'غير محدد';
       if (!data[day]) {
         data[day] = { name: day, worshippers: 0, meals: 0, itikaf: 0, suhoor: 0, lectures: 0, lectureBeneficiaries: 0, eidGifts: 0 };
@@ -191,26 +207,139 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, eidRecords
     });
     
     return Object.values(data);
-  }, [records, eidRecords]);
+  }, [filteredRecords, filteredEidRecords]);
+
+  const handleToggleMosque = (code: string) => {
+    setSelectedMosqueCodes(prev => 
+      prev.includes(code) 
+        ? prev.filter(c => c !== code) 
+        : [...prev, code]
+    );
+  };
+
+  const handleSelectAll = () => {
+    setSelectedMosqueCodes(mosques.map(m => m.mosque_code));
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedMosqueCodes([]);
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
 
   return (
-    <div className="space-y-8 animate-in fade-in text-right" dir="rtl">
+    <div className="space-y-8 animate-in fade-in text-right print:space-y-4 print:p-0" dir="rtl">
+      {/* Print Styles */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          @page { size: A4; margin: 1cm; }
+          body { background: white !important; }
+          .no-print { display: none !important; }
+          .print-break-inside-avoid { break-inside: avoid; }
+          .print-grid { display: block !important; }
+          .print-card { margin-bottom: 1rem; border: 1px solid #e2e8f0 !important; box-shadow: none !important; }
+          header, footer, nav { display: none !important; }
+        }
+      `}} />
+
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-sm border border-slate-100">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-sm border border-slate-100 no-print">
         <div>
           <h2 className="text-2xl md:text-3xl font-black text-[#003366]">التقرير العام 🏛️</h2>
           <p className="text-slate-500 font-bold mt-1 text-xs md:text-base">عرض استراتيجي لحجم الأثر والعمل الميداني - رمضان 1447هـ</p>
         </div>
-        <button 
-          onClick={onBack}
-          className="w-full md:w-auto px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-black hover:bg-slate-200 transition-all flex items-center justify-center gap-2 text-sm md:text-base"
-        >
-          <span>العودة للرئيسية</span>
-        </button>
+        <div className="flex flex-wrap gap-3 w-full md:w-auto">
+          <button 
+            onClick={handlePrint}
+            className="flex-1 md:flex-none px-6 py-3 bg-[#0054A6] text-white rounded-xl font-black hover:bg-[#003366] transition-all flex items-center justify-center gap-2 text-sm md:text-base shadow-lg shadow-[#0054A6]/20"
+          >
+            <Printer className="w-5 h-5" />
+            <span>طباعة التقرير</span>
+          </button>
+          <button 
+            onClick={onBack}
+            className="flex-1 md:flex-none px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-black hover:bg-slate-200 transition-all flex items-center justify-center gap-2 text-sm md:text-base"
+          >
+            <span>العودة للرئيسية</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Filters Section */}
+      <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 no-print">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-[#C5A059]/10 rounded-xl flex items-center justify-center text-[#C5A059]">
+              <MapPin className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-lg font-black text-[#003366]">تصفية حسب المواقع</h3>
+              <p className="text-xs text-slate-400 font-bold">اختر المساجد لعرض بياناتها المجمعة</p>
+            </div>
+          </div>
+          
+          <div className="relative w-full md:w-72">
+            <button 
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between font-bold text-[#003366] hover:bg-slate-100 transition-all"
+            >
+              <div className="flex items-center gap-2">
+                <LayoutGrid className="w-4 h-4 text-[#C5A059]" />
+                <span>{selectedMosqueCodes.length === mosques.length ? 'جميع المواقع' : `${selectedMosqueCodes.length} مواقع مختارة`}</span>
+              </div>
+              <ChevronDown className={`w-4 h-4 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {isFilterOpen && (
+              <div className="absolute top-full right-0 left-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[100] p-4 animate-in slide-in-from-top-2 duration-200">
+                <div className="flex justify-between gap-2 mb-4">
+                  <button onClick={handleSelectAll} className="flex-1 py-2 text-[10px] font-black bg-[#0054A6]/10 text-[#0054A6] rounded-lg hover:bg-[#0054A6]/20 transition-all">تحديد الكل</button>
+                  <button onClick={handleDeselectAll} className="flex-1 py-2 text-[10px] font-black bg-slate-100 text-slate-500 rounded-lg hover:bg-slate-200 transition-all">إلغاء الكل</button>
+                </div>
+                <div className="max-h-60 overflow-y-auto space-y-1 custom-scrollbar pr-1">
+                  {mosques.map(mosque => (
+                    <button
+                      key={mosque.mosque_code}
+                      onClick={() => handleToggleMosque(mosque.mosque_code)}
+                      className={`w-full flex items-center justify-between p-3 rounded-xl transition-all ${selectedMosqueCodes.includes(mosque.mosque_code) ? 'bg-[#C5A059]/10 text-[#C5A059]' : 'hover:bg-slate-50 text-slate-600'}`}
+                    >
+                      <span className="text-sm font-bold">{mosque.المسجد}</span>
+                      {selectedMosqueCodes.includes(mosque.mosque_code) && <Check className="w-4 h-4" />}
+                    </button>
+                  ))}
+                </div>
+                <button 
+                  onClick={() => setIsFilterOpen(false)}
+                  className="w-full mt-4 py-3 bg-[#003366] text-white rounded-xl font-black text-sm"
+                >
+                  تطبيق
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+        
+        {selectedMosqueCodes.length < mosques.length && selectedMosqueCodes.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {selectedMosqueCodes.map(code => {
+              const mosque = mosques.find(m => m.mosque_code === code);
+              return (
+                <div key={code} className="flex items-center gap-2 px-3 py-1 bg-slate-100 rounded-full text-[10px] font-bold text-slate-600 border border-slate-200">
+                  <span>{mosque?.المسجد}</span>
+                  <button onClick={() => handleToggleMosque(code)} className="hover:text-red-500">
+                    <CloseIcon className="w-3 h-3" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* High Level Impact Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 print:grid print:grid-cols-2">
         <ImpactCard 
           title="إجمالي المستفيدين" 
           value={stats.totalWorshippers + stats.totalCommunityBeneficiaries + stats.totalLectureBeneficiaries + stats.totalHospitalityBeneficiaries + stats.totalItikaf + stats.totalEidWorshippers} 
@@ -277,7 +406,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, eidRecords
       </div>
 
       {/* Strategic Meal Distribution - Highlighted Section */}
-      <div className="bg-white p-6 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] shadow-2xl border border-slate-100 relative overflow-hidden">
+      <div className="bg-white p-6 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] shadow-2xl border border-slate-100 relative overflow-hidden print:shadow-none print:border print:rounded-2xl print-break-inside-avoid">
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#003366] via-[#C5A059] to-[#003366]"></div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 md:mb-10">
           <div className="flex items-center gap-4">
@@ -371,8 +500,8 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, eidRecords
       </div>
 
       {/* Charts Row 1 - Daily Growth Only */}
-      <div className="grid grid-cols-1 gap-8">
-        <div className="bg-white p-8 rounded-[3rem] shadow-xl border border-slate-100">
+      <div className="grid grid-cols-1 gap-8 print-break-inside-avoid">
+        <div className="bg-white p-8 rounded-[3rem] shadow-xl border border-slate-100 print:shadow-none print:border print:rounded-2xl">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-10 h-10 bg-[#003366]/10 rounded-xl flex items-center justify-center text-[#003366]">
               <TrendingUp className="w-6 h-6" />
@@ -423,8 +552,8 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, eidRecords
       </div>
 
       {/* Human Capital & Educational Progress */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-white p-8 rounded-[3rem] shadow-xl border border-slate-100">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 print:grid-cols-1">
+        <div className="bg-white p-8 rounded-[3rem] shadow-xl border border-slate-100 print:shadow-none print:border print:rounded-2xl print-break-inside-avoid">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-10 h-10 bg-[#0054A6]/10 rounded-xl flex items-center justify-center text-[#0054A6]">
               <UsersRound className="w-6 h-6" />
@@ -450,7 +579,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, eidRecords
           </div>
         </div>
 
-        <div className="bg-white p-8 rounded-[3rem] shadow-xl border border-slate-100">
+        <div className="bg-white p-8 rounded-[3rem] shadow-xl border border-slate-100 print:shadow-none print:border print:rounded-2xl print-break-inside-avoid">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-10 h-10 bg-[#C5A059]/10 rounded-xl flex items-center justify-center text-[#C5A059]">
               <BookOpen className="w-6 h-6" />
@@ -473,7 +602,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, eidRecords
       </div>
 
       {/* Secondary Metrics Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 print:grid-cols-2">
         <MetricBox 
           title="البرامج الدعوية" 
           value={stats.totalLectures} 
@@ -511,7 +640,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, eidRecords
       </div>
 
       {/* Community Programs Special Section */}
-      <div className="bg-white p-8 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] shadow-xl border border-slate-100">
+      <div className="bg-white p-8 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] shadow-xl border border-slate-100 print:shadow-none print:border print:rounded-2xl print-break-inside-avoid">
         <div className="flex items-center gap-4 mb-8">
           <div className="w-12 h-12 bg-[#003366]/10 rounded-2xl flex items-center justify-center text-[#003366]">
             <Sparkles className="w-6 h-6" />
@@ -577,8 +706,8 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, eidRecords
       </div>
 
       {/* Mosque Performance Comparison */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-white p-8 rounded-[3rem] shadow-xl border border-slate-100">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 print:grid-cols-1">
+        <div className="bg-white p-8 rounded-[3rem] shadow-xl border border-slate-100 print:shadow-none print:border print:rounded-2xl print-break-inside-avoid">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-10 h-10 bg-[#003366]/10 rounded-xl flex items-center justify-center text-[#003366]">
               <MapPin className="w-6 h-6" />
@@ -656,7 +785,7 @@ const TrusteeDashboard: React.FC<TrusteeDashboardProps> = ({ records, eidRecords
           </div>
         </div>
 
-        <div className="bg-white p-8 rounded-[3rem] shadow-xl border border-slate-100">
+        <div className="bg-white p-8 rounded-[3rem] shadow-xl border border-slate-100 print:shadow-none print:border print:rounded-2xl print-break-inside-avoid">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-10 h-10 bg-[#0054A6]/10 rounded-xl flex items-center justify-center text-[#0054A6]">
               <Presentation className="w-6 h-6" />
